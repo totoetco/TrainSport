@@ -8,7 +8,7 @@ Created on Sun Mar 04 03:45:34 2018
 import networkx as nx
 import numpy as np
 import sys 
-sys.path.append('/home/kevin1024/Desktop/AGGP') 
+#sys.path.append('/home/kevin1024/Desktop/AGGP') #set the path 
 import Mcoef as mc
 
 class Graph:
@@ -33,26 +33,34 @@ class Graph:
              #k+=1
         self.degree = self.graph.degree()
         return self.graph
-    def calculate_fitness(self):
-        gamma_basic = -1 #set standard gamma
-        C_basic = -1
-        L_basic = -1
+    def calculate_fitness(self,gamma_basic,C_basic,L_basic):
         gamma = mc.degree_coef(self.graph)
         #beta = mc.clustering_coef(self.graph)
         C = nx.average_clustering(self.graph)
         L = nx.average_shortest_path_length(self.graph)
-        fitness = (1/3)*(abs(gamma-gamma_basic)+abs(C-C_basic)+abs(L-L_basic))
+        print (gamma,C,L)
+        fitness = fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic)
+        print fitness
         self.fitness = fitness
         return self.fitness
 
+def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic):
+    fitness = ((gamma-gamma_basic)**2+(C-C_basic)**2+(L-L_basic)**2)
+    return fitness
 #generate a population
-population = []
-for i in range(2,5):
-    g = Graph(i)
-    g.generate_random_connected_graph()    
-    g.calculate_fitness()
-    population.append(g)
+def create_population(pop_num,node_num):
+    population = []
+    for i in range(pop_num):
+        g = Graph(node_num)
+        g.generate_random_connected_graph()    
+        g.calculate_fitness(1,1,1) #3 parameter from the article
+        population.append(g)
+    return population
 
+
+
+#test: create a population, input parameter:number of graphs and number of nodes    
+population = create_population(10,3000)
 #sort the population by its fitness   
 population.sort(cmp=None, key=lambda x:x.fitness, reverse=True)
 

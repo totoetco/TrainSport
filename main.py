@@ -58,19 +58,18 @@ class Graph:
 		    a_changed = 0
 		    b_changed = 0
 		    while a_changed < a:
-			    r_edge = random.sample(aGraph.edges(),1)
-			    aGraph.remove_edge(*r_edge[0])
-			    if(nx.is_connected(aGraph)):
+			    r_edge = random.sample(self.graph.edges(),1)
+			    self.graph.remove_edge(*r_edge[0])
+			    if(nx.is_connected(self.graph)):
 				    a_changed+=1
 			    else:
-				    aGraph.add_edge(*r_edge[0])
+				    self.graph.add_edge(*r_edge[0])
 		    while b_changed < b:
-			    random_node1 = random.choice(np.array(nx.nodes(aGraph)))
-			    random_node2 = random.choice(np.array(nx.nodes(aGraph)))
-                if (random_node2 not in aGraph.neighbors(random_node1)):
-				    aGraph.add_edge(random_node1,random_node2)
+			    random_node1 = random.choice(np.array(nx.nodes(self.graph)))
+			    random_node2 = random.choice(np.array(nx.nodes(self.graph)))
+                if (random_node2 not in self.graph.neighbors(random_node1)):
+				    self.graph.add_edge(random_node1,random_node2)
 				    b_changed+=1
-        return(aGraph)
 def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic):
     fitness = -((gamma-gamma_basic)**2+(C-C_basic)**2+(L-L_basic)**2)
     return fitness

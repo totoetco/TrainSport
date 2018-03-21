@@ -59,6 +59,22 @@ def create_population(pop_num,node_num):
 
 
 
+def cross_over(aGraph,bGraph,numnber_of_co):
+	nodes = list(aGraph.nodes())
+	sample = random.sample(nodes,numnber_of_co)
+	print(sample)
+	for node in sample :
+		edges_a = list(nx.edges(aGraph,node))
+		edges_b = list(nx.edges(bGraph,node))
+
+		aGraph.remove_edges_from(edges_a)
+		bGraph.remove_edges_from(edges_b)
+
+		aGraph.add_edges_from(edges_b)
+		bGraph.add_edges_from(edges_a)
+
+
+
 #test: create a population, input parameter:number of graphs and number of nodes    
 population = create_population(10,3000)
 #sort the population by its fitness   

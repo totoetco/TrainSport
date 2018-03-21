@@ -15,18 +15,22 @@ import matplotlib.pyplot as plt
 
 
 class Graph:
+
     def __init__(self,node_num):
         self.node_num = node_num #number of nodes
         #self.edge_num = edge_num
         self.graph = nx.Graph() #a empty graph
         self.fitness = -1 #set fitness, defaut is -1
         #self.degree = -1 #init degree
+
     def show_graph(self):
         pos = nx.spring_layout(self.graph)
         nx.draw(self.graph, pos, with_labels=True)
         plt.show()
         
-    
+    def __repr__(self):
+        return("Graphe de "+str(len(list(self.graph.edges())))+" edges, fitness de "+str(self.fitness))
+
     def generate_random_connected_graph(self):
         nodes = range(self.node_num)#create a vector of nodes,length=nodes number
         self.graph.add_nodes_from(nodes)#create a graph with all nodes, but no edges
@@ -43,9 +47,7 @@ class Graph:
         #beta = mc.clustering_coef(self.graph)
         C = nx.average_clustering(self.graph)
         L = nx.average_shortest_path_length(self.graph)
-        print (gamma,C,L)
         fitness = fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic)
-        print fitness
         self.fitness = fitness
         return self.fitness
 
@@ -71,9 +73,10 @@ class Graph:
                     b_changed+=1
 
 def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic):
-    fitness = ((gamma-gamma_basic)**2+(C-C_basic)**2+(L-L_basic)**2)
+    fitness = -((gamma-gamma_basic)**2+(C-C_basic)**2+(L-L_basic)**2)
     return fitness
 #generate a population
+
 def create_population(pop_num,node_num):
     population = []
     for i in range(pop_num):
@@ -103,7 +106,6 @@ def cross_over(aGraph,bGraph,numnber_of_co):
         bGraph.add_edges_from(edges_a)
 
         if nx.is_connected(aGraph) and nx.is_connected(bGraph):
-            print(node)
             n+=1
 
         else:
@@ -120,12 +122,12 @@ def cross_over(aGraph,bGraph,numnber_of_co):
 
 #test: create a population, input parameter:number of graphs and number of nodes    
 
-population = create_population(2,10)
+#population = create_population(2,10)
 #mut = population[0].mutation_of_a_graph(3)
 
-#sort the population by its fitness   
-population.sort(cmp=None, key=lambda x:x.fitness, reverse=True)
-
+#sort the population by its fitness  
+#population.sort(cmp=None, key=lambda x:x.fitness, reverse=True)
+#print(population)
 '''
 population[0].show_graph()
 population[1].show_graph()
@@ -145,11 +147,38 @@ bg.show_graph()
     #print g.fitness
 
 
-def main(nb_nodes,nb_graph,nb_select,p,nb_mutation,nb_co) :
+def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
     population = create_population(nb_graph, nb_nodes)
 
-    while i < 50 :
-        population.sort(cmp=None, key=lambda x:x.fitness, reverse=True)
+    i = 0
+    while i < 1 :
+
+        population.sort(key=lambda x:x.fitness, reverse=True)
+
+        ## Selection!!
+        good = population[:nb_select]
+        bad = population[nb_select:]
+        print(good, bad)
+        
+        for G in population: 
+
+            ## mutation!!
+            if random.random()>p_mute:
+                G.mutation_of_a_graph(nb_mutation)
+
+        for G in good:
+            ## crossing over!!
+            if random.random()>p_co:
+                s=int(random.choice(np.linspace(0, len(good))))
+                G.graph, population[s].graph = cross_over(G.graph, population[s].graph, nb_co)
+
+        i+=1
+    return(population[0])
+
+best = main(20, 30, 10, 0.5, 0.2, 2, 4)
+print("\nLe meilleur graphe est: ", best)
+
+
         
 
 

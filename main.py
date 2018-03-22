@@ -42,6 +42,9 @@ class Graph:
         #self.degree = self.graph.degree()
         return self.graph
 
+    def generate_barabasi_graph(self):
+        self.graph=nx.barabasi_albert_graph(self.node_num, 5)
+
     def calculate_fitness(self,gamma_basic,C_basic,L_basic):
         gamma = mc.degree_coef(self.graph)
         #beta = mc.clustering_coef(self.graph)
@@ -53,35 +56,44 @@ class Graph:
 
     def mutation_of_a_graph(self,number_to_change,method = None):
         if method == None :
-		    a = int(round(random.random()*number_to_change))
-		    b = number_to_change-a
-		    a_changed = 0
-		    b_changed = 0
-		    while a_changed < a:
-			    r_edge = random.sample(self.graph.edges(),1)
-			    self.graph.remove_edge(*r_edge[0])
-			    if(nx.is_connected(self.graph)):
-				    a_changed+=1
-			    else:
-				    self.graph.add_edge(*r_edge[0])
-		    while b_changed < b:
-			    random_node1 = random.choice(np.array(nx.nodes(self.graph)))
-			    random_node2 = random.choice(np.array(nx.nodes(self.graph)))
+            a = int(round(random.random()*number_to_change))
+            b = number_to_change-a
+            a_changed = 0
+            b_changed = 0
+            while a_changed < a:
+                r_edge = random.sample(self.graph.edges(),1)
+                self.graph.remove_edge(*r_edge[0])
+                if(nx.is_connected(self.graph)):
+                    a_changed+=1
+                else:
+                    self.graph.add_edge(*r_edge[0])
+            while b_changed < b:
+                random_node1 = random.choice(np.array(nx.nodes(self.graph)))
+                random_node2 = random.choice(np.array(nx.nodes(self.graph)))
                 if (random_node2 not in self.graph.neighbors(random_node1)):
-				    self.graph.add_edge(random_node1,random_node2)
-				    b_changed+=1
+                    self.graph.add_edge(random_node1,random_node2)
+                    b_changed+=1
+
 def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic):
     fitness = -((gamma-gamma_basic)**2+(C-C_basic)**2+(L-L_basic)**2)
     return fitness
 #generate a population
 
-def create_population(pop_num,node_num):
+def create_population(pop_num,node_num, method="random"):
     population = []
     for i in range(pop_num):
         g = Graph(node_num)
-        g.generate_random_connected_graph()    
+
+        if method=="random":
+            g.generate_random_connected_graph()   
+        elif method=="barabasi":
+            g.generate_barabasi_graph()
+        else: 
+            raise NameError('Wrong method.')
+
         g.calculate_fitness(1,1,1) #3 parameter from the article
         population.append(g)
+
     return population
 
 
@@ -147,16 +159,17 @@ bg.show_graph()
 
 def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
     population = create_population(nb_graph, nb_nodes)
+    print(population, '\n')
 
     i = 0
-    while i < 5 :
+    while i < 20 :
 
         population.sort(key=lambda x:x.fitness, reverse=True)
 
         ## Selection!!
         good = population[:nb_select]
         bad = population[nb_select:]
-        print(good, bad)
+        
 
         ## crossing over!!
         for G in good:
@@ -173,21 +186,14 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
             if random.random()>p_mute:
                 G.mutation_of_a_graph(nb_mutation)
             G.calculate_fitness(1,1,1)
-            print("ap mute", nx.is_connected(G.graph))
+     
 
 
         i+=1
     return(population[0])
 
 best = main(20, 30, 10, 0.5, 0.2, 2, 4)
-print("\nLe meilleur graphe est: ", best)
-
-
-        
-
-
-
-
+print("\nLe meilleur graphe est: ", best, "Il a pour coefficients C, gamma et L: ", nx.average_clustering(best.graph),  mc.degree_coef(best.graph), nx.average_shortest_path_length(best.graph),'\n')
 
 
 

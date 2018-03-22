@@ -56,11 +56,12 @@ def degree_coef(G):
 
 	fit=LM(0, 0.001, f, gradient, deriv_seconde, x, y)
 
-
+	'''
 	plt.bar(x,y, alpha=0.7)
 	plt.plot(x, power(x, fit), c="red")
 	plt.title("Scaled degree distribution.")
 	plt.show()
+	'''
 
 	return(-fit)
 
@@ -77,15 +78,17 @@ def clustering_coef(G):
 
 	fit=LM(0, 0.001, f, gradient, deriv_seconde, x, y)
 
+	'''
 	plt.plot(x, power(x, fit), c="red")
 	plt.bar(x,y, 0.003, alpha=0.7)
 	plt.title("Scaled Clustering coefficient distribution.")
 	plt.show()
+	'''
 
 	return(-fit)
 
 
-
+'''
 #### power law fitting function: Test data!! ######
 x = np.linspace(1 ,5, 100)
 y = power(x, -2.5) + 0.2*np.random.normal(0,1, 100)
@@ -120,3 +123,4 @@ print('C: ', C, '\n beta: ', beta, '\n')
 L = nx.average_shortest_path_length(G)
 print('L: ', L, '\n')
 
+'''

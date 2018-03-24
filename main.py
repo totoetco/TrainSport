@@ -13,6 +13,7 @@ import parameters as mc
 import random
 import matplotlib.pyplot as plt
 import time
+import math
 
 class Graph:
 
@@ -40,19 +41,39 @@ class Graph:
             self.graph.add_edges_from(new_edges)
              #k+=1
         #self.degree = self.graph.degree()
-        return self.graph
+        #return self.graph
 
     def generate_barabasi_graph(self):
         self.graph=nx.barabasi_albert_graph(self.node_num, 5)
 
     def calculate_fitness(self,gamma_basic,C_basic,L_basic):
         gamma = mc.degree_coef(self.graph)
-        #beta = mc.clustering_coef(self.graph)
+             #beta = mc.clustering_coef(self.graph)
         C = nx.average_clustering(self.graph)
+
         L = nx.average_shortest_path_length(self.graph)
+
         fitness = fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic)
         self.fitness = fitness
-        return self.fitness
+        #return self.fitness
+
+    def mutation_v2(self, number_to_change,method=None):
+        if method == None :
+            a = int(round(random.random()*number_to_change)) #remove 
+            b = number_to_change-a #add 
+            #print (a,b)
+        while True:
+            graph_change = self.graph.copy()
+            remove_edge = random.sample(graph_change.edges(),a)
+            add_edge = np.random.choice(self.node_num,size=(b,2),replace=False)
+            #print ('remove',remove_edge)
+            #print ('add',add_edge)
+            graph_change.remove_edges_from(remove_edge)            
+            graph_change.add_edges_from(add_edge)
+            if nx.is_connected(graph_change):
+                break
+        self.graph = graph_change
+        #return graph_change
 
     def mutation_of_a_graph(self,number_to_change,method = None):
         if method == None :
@@ -75,7 +96,7 @@ class Graph:
                     b_changed+=1
 
 def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic):
-    fitness = -((gamma-gamma_basic)**2+(C-C_basic)**2+(L-L_basic)**2)
+    fitness = -math.sqrt(((1/3)*(gamma-gamma_basic)**2+(1/3)*(C-C_basic)**2+(1/3)*(L-L_basic)**2))
     return fitness
 #generate a population
 
@@ -187,14 +208,18 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
         for G in population: 
 
             if random.random()<p_mute:
-                G.mutation_of_a_graph(nb_mutation)
+                G.mutation_v2(nb_mutation)
+        print(" temps mutation", time.time()-t1)
+
+        t1=time.time()
+        for G in population: 
             G.calculate_fitness(1,1,1) #3 parameter from the article 1.83,0.835,3.5
-        print(" temps mute", time.time()-t1)
+        print(" temps fitness", time.time()-t1)
      
         i+=1
     return(population[0])
 
-best = main(50, 30, 10, 0.5, 0.2, 2, 4)
+best = main(50, 30, 10, 1, 0.2, 2, 4)
 print("\nLe meilleur graphe est: ", best, "Il a pour coefficients C, gamma et L: ", nx.average_clustering(best.graph),  mc.degree_coef(best.graph), nx.average_shortest_path_length(best.graph),'\n')
 
 

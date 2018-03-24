@@ -12,7 +12,7 @@ import sys
 import parameters as mc
 import random
 import matplotlib.pyplot as plt
-
+import time
 
 class Graph:
 
@@ -158,13 +158,18 @@ bg.show_graph()
 
 
 def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
-    population = create_population(nb_graph, nb_nodes)
-    print(population, '\n')
+
+    t1=time.time()
+    population = create_population(nb_graph, nb_nodes, "barabasi")
+    print(" temps génération", time.time()-t1)
 
     i = 0
     while i < 20 :
 
+        t1=time.time()
         population.sort(key=lambda x:x.fitness, reverse=True)
+        print(population, '\n')
+        print(" temps sort", time.time()-t1)
 
         ## Selection!!
         good = population[:nb_select]
@@ -172,23 +177,23 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
         
 
         ## crossing over!!
+        t1=time.time()
         for G in good:
 
             if random.random()>p_co:
                 s=int(random.choice(np.linspace(0, len(good))))
                 G.graph, population[s].graph = cross_over(G.graph, population[s].graph, nb_co)
-
+        print(" temps co", time.time()-t1)
      
-
+        t1=time.time()
         ## mutation!!
         for G in population: 
 
             if random.random()>p_mute:
                 G.mutation_of_a_graph(nb_mutation)
             G.calculate_fitness(1,1,1)
+        print(" temps mute", time.time()-t1)
      
-
-
         i+=1
     return(population[0])
 

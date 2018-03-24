@@ -91,7 +91,7 @@ def create_population(pop_num,node_num, method="random"):
         else: 
             raise NameError('Wrong method.')
 
-        g.calculate_fitness(1,1,1) #3 parameter from the article
+        g.calculate_fitness(1,1,1) #3 parameter from the article 1.83,0.835,3.5
         population.append(g)
 
     return population
@@ -170,34 +170,31 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
         population.sort(key=lambda x:x.fitness, reverse=True)
         print(population, '\n')
         print(" temps sort", time.time()-t1)
-
-        ## Selection!!
-        good = population[:nb_select]
-        bad = population[nb_select:]
         
 
         ## crossing over!!
         t1=time.time()
-        for G in good:
+        for G in population[nb_select:]:
 
             if random.random()>p_co:
-                s=int(random.choice(np.linspace(0, len(good))))
+                s=int(random.choice(np.linspace(nb_graph-nb_select+1, nb_graph-1)))
                 G.graph, population[s].graph = cross_over(G.graph, population[s].graph, nb_co)
         print(" temps co", time.time()-t1)
-     
+      
+
         t1=time.time()
         ## mutation!!
         for G in population: 
 
-            if random.random()>p_mute:
+            if random.random()<p_mute:
                 G.mutation_of_a_graph(nb_mutation)
-            G.calculate_fitness(1,1,1)
+            G.calculate_fitness(1,1,1) #3 parameter from the article 1.83,0.835,3.5
         print(" temps mute", time.time()-t1)
      
         i+=1
     return(population[0])
 
-best = main(20, 30, 10, 0.5, 0.2, 2, 4)
+best = main(50, 30, 10, 0.5, 0.2, 2, 4)
 print("\nLe meilleur graphe est: ", best, "Il a pour coefficients C, gamma et L: ", nx.average_clustering(best.graph),  mc.degree_coef(best.graph), nx.average_shortest_path_length(best.graph),'\n')
 
 

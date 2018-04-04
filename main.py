@@ -84,10 +84,8 @@ class Graph:
 
     def mutation_of_a_graph(self,number_to_change,method = None):
         if method == None :
-            #a = int(round(random.random()*number_to_change))
-            #b = number_to_change-a
-            a = number_to_change
-            b = 0
+            a = int(round(random.random()*number_to_change))
+            b = number_to_change-a
             a_changed = 0
             b_changed = 0
             while a_changed < a:
@@ -170,7 +168,7 @@ def cross_over(aGraph,bGraph,numnber_of_co):
 def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
 
     t1=time.time()
-    population = create_population(nb_graph, nb_nodes, "barabasi")
+    population = create_population(nb_graph, nb_nodes, "random")
     print("temps generation", time.time()-t1)
 
     i = 0

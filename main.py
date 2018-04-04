@@ -84,8 +84,8 @@ class Graph:
 
     def mutation_of_a_graph(self,number_to_change,method = None):
         if method == None :
-            a = int(round(random.random()*number_to_change))
-            b = number_to_change-a
+            a = 2#int(round(random.random()*number_to_change))
+            b = number_to_change#-a
             a_changed = 0
             b_changed = 0
             while a_changed < a:
@@ -114,7 +114,7 @@ class Graph:
                     self.graph.add_edge(random_node1,random_node2)  
 
 def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic):
-    fitness = math.sqrt(((1/3)*(gamma-gamma_basic)**2+(1/3)*(C-C_basic)**2+(1/3)*(L-L_basic)**2))
+    fitness = math.sqrt(((1.0/3)*(gamma-gamma_basic)**2+(1.0/3)*(C-C_basic)**2+(1.0/3)*(L-L_basic)**2))
     return fitness
 #generate a population
 
@@ -160,7 +160,7 @@ def cross_over(aGraph,bGraph,numnber_of_co):
             aGraph.remove_edges_from(edges_b)
             bGraph.remove_edges_from(edges_a)
 
-    return aGraph, bGraph
+    return aGraph#, bGraph
 
 
 
@@ -178,6 +178,7 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
 
         t1=time.time()
         population.sort(key=lambda x:x.fitness, reverse=False)
+        print(population[0].fitness)
         fitnesses.append(population[0].fitness)
         coef[0].append(population[0].C)
         coef[1].append(population[0].L)
@@ -189,8 +190,8 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
         t1=time.time()
         for G in population[nb_select:]:
             if random.random()<p_co:
-                s=int(random.choice(np.linspace(nb_graph-nb_select+1, nb_graph-1)))
-                G.graph, population[s].graph = cross_over(G.graph, population[s].graph, nb_co)
+                s=int(random.choice(np.linspace(0, nb_select)))
+                G.graph = cross_over(G.graph, population[s].graph, nb_co) #, population[s].graph
         print(" temps co", time.time()-t1)
       
 
@@ -216,5 +217,5 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
     plt.show()
     return(population[0])
 
-best = main(100, 30, 5, 1, 1, 15, 4)
+best = main(100, 30, 5, 0.8, 1, 20, 4)
 print("\nLe meilleur graphe est: ", best, "Il a pour coefficients C, gamma et L: ", nx.average_clustering(best.graph),  mc.degree_coef(best.graph), nx.average_shortest_path_length(best.graph),'\n')

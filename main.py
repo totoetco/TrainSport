@@ -49,7 +49,7 @@ class Graph:
     def generate_barabasi_graph(self):
         self.graph=nx.barabasi_albert_graph(self.node_num, 1)
 
-    def calculate_fitness(self,gamma_basic,C_basic,L_basic):
+    def calculate_fitness(self,gamma_basic,C_basic,L_basic, wG=1.0/3, wC=1.0/3, wL=1.0/3):
         gamma = mc.degree_coef(self.graph)
              #beta = mc.clustering_coef(self.graph)
         C = nx.average_clustering(self.graph)
@@ -57,7 +57,7 @@ class Graph:
         L = nx.average_shortest_path_length(self.graph)
 
 
-        fitness = fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic)
+        fitness = fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic, wG, wC, wL)
         self.C = C
         self.gamma = gamma
         self.L = L
@@ -86,7 +86,10 @@ class Graph:
         if method == None :
             a = int(round(random.random()*number_to_change))
             b = number_to_change-a
-
+            '''
+            a = 0
+            b = number_to_change
+            ''' 
 
             a_changed = 0
             b_changed = 0
@@ -122,8 +125,8 @@ class Graph:
                     self.graph.add_edge(random_node1,random_node2)  
 
 
-def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic):
-    fitness = math.sqrt(((1.0/3)*(gamma-gamma_basic)**2+(1.0/3)*(C-C_basic)**2+(1.0/3)*(L-L_basic)**2))
+def fitness_func(gamma,C,L,gamma_basic,C_basic,L_basic, wG, wC, wL):
+    fitness = math.sqrt((wG*(gamma-gamma_basic)**2+wC*(C-C_basic)**2+wL*(L-L_basic)**2))
     return fitness
 #generate a population
 
@@ -138,7 +141,7 @@ def create_population(pop_num,node_num, method):
             g.generate_barabasi_graph()
         else: 
             raise NameError('Wrong method.')
-        g.calculate_fitness(1,1,1) #3 parameter from the article 1.83,0.835,3.5
+        g.calculate_fitness(1.07, 0.835, 2.18) #3 parameter from the article 1.83,0.835,3.5
         population.append(g)
     return population
 
@@ -199,8 +202,20 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
     fitnesses = []
     coef=[[], [], []]
 
+    ## Weights
+    '''
+    wG = 1.0/3
+    wC = 1.0/3
+    wL = 1.0/3
+    '''
+
+    ## 
+    Gamma_target = 1.07
+    C_target = 0.835
+    L_target = 2.18
+
     # Loop begins
-    while i < 20 :
+    while i < 50 :
 
         # Population is sorted
         t1=time.time()
@@ -231,9 +246,9 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
 
 
         
-        #### mutation!!
+        #### mutation!! New idea: The current first graph remains untouch - the fitness will always decrease like that!
         t1=time.time()
-        for G in population: 
+        for G in population[1:]: 
             if random.random()<p_mute:
                 G.mutation_of_a_graph(nb_mutation)
         print(" temps mutation", time.time()-t1)
@@ -242,9 +257,21 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_mutation, nb_co) :
         #### Fitness computation!!
         t1=time.time()
         for G in population: 
-            G.calculate_fitness(1,1,1) #3 parameter from the article 1.83,0.835,3.5
+            G.calculate_fitness(Gamma_target, C_target, L_target) # wG, wC, wL) #3 parameter from the article 1.83,0.835,3.5
+
+
+        # Conversion to 100 nodes graphs: (gamma: 1.07, C: 0.835, L: 2.18)
         print(" temps fitness", time.time()-t1)
         print("coefficients (C, L, gamma) :", population[0].C,population[0].L,population[0].gamma)
+
+        # Update weigths
+        '''
+        Tot=abs(population[0].C-C_target)+ abs(population[0].L-L_target)+abs(population[0].gamma-Gamma_target)
+        wG=abs(population[0].gamma-Gamma_target)/Tot
+        wC=abs(population[0].C-C_target)/Tot
+        wL=abs(population[0].L-L_target)/Tot
+        '''
+
         i+=1
 
 
@@ -273,17 +300,19 @@ plot_evol(f, c)
 def moy_diff(f):
     
     m = f[0]
-    diff=abs(np.asarray(f)-m)
+    diff=float(m)/np.asarray(f)
 
     return(np.mean(diff), math.sqrt(np.var(diff)))
 
-# Launch 5 execution of code with given parameter, and returns statistical quality results
+# Launch 5 execution of code with given parameters, and returns statistical quality results
 
 def launch_exploration(nb_select, p_mute, p_co, nb_mutation, nb_co):
     mean = []
     var = []
     for i in range(1):
         best, f, c = main(100, 30, nb_select, p_mute, p_co, nb_mutation, nb_co)
+
+        best.show_graph()
         m, v = moy_diff(f)
         mean.append(m)
         var.append(v)
@@ -294,6 +323,6 @@ def launch_exploration(nb_select, p_mute, p_co, nb_mutation, nb_co):
     
     return(np.mean(mean), np.mean(var), np.var(mean))
 
-m, mv, v = launch_exploration(10, 1, 1, 20, 4)
+m, mv, v = launch_exploration(15, 1, 1, 20, 30)
 
 print (u"Pour les valeurs de paramètres données, l'écart moyen à la valeur initiale est de: "+ str(m) +"la variance moyenne de cet écart est de "+ str(mv) + "et la variance inter-populations de "+ str(v)) 

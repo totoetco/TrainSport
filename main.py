@@ -62,25 +62,7 @@ class Graph:
         self.gamma = gamma
         self.L = L
         self.fitness = fitness
-        #return self.fitness
-
-    def mutation_v2(self, number_to_change,method = None):
-        if(method == None):
-            #a = int(round(random.random()*number_to_change)) #remove
-            #b = number_to_change-a #add
-            a = number_to_change
-            b = 0
-        while True:
-            graph_change = self.graph.copy()
-            remove_edge = random.sample(graph_change.edges(),a)
-            add_edge = np.random.choice(self.node_num,size=(b,2),replace=False)
-            #print ('remove',remove_edge)
-            #print ('add',add_edge)
-            graph_change.remove_edges_from(remove_edge)            
-            graph_change.add_edges_from(add_edge)
-            if nx.is_connected(graph_change):
-                break
-        self.graph = graph_change   
+        #return self.fitness   
 
     def mutation_of_a_graph(self,number_to_change,method = None):
         if method == None :

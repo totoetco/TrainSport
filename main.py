@@ -67,6 +67,7 @@ class Graph:
 			b = int(round(random.random()*number_to_change))
 			#a = int(round(random.random()*200))
 			#b = int(round(random.random()*200))
+			
 			'''
 			a = 0
 			b = number_to_change
@@ -118,7 +119,7 @@ def create_population(pop_num,node_num, method):
 def cross_over(aGraph,bGraph,numnber_of_co):
 
 	nodes = list(aGraph.nodes())
-	num = numnber_of_co
+	num = np.random.choice(np.arange(0,numnber_of_co+1))
 	n = 0
 
 	aG=aGraph.copy()
@@ -284,8 +285,9 @@ def launch_exploration(nb_select, p_mute, p_co, nb_co):
 	time1 = time.time()
 	mean = []
 	var = []
-	for i in range(1):
+	for i in range(4):
 		best, f, c = main(100, 30, nb_select, p_mute, p_co, nb_co)
+
 
 		#best.show_graph()
 		#nx.write_adjlist(best,"best.adjlist")
@@ -293,12 +295,31 @@ def launch_exploration(nb_select, p_mute, p_co, nb_co):
 		mean.append(m)
 		var.append(v)
 
-	plot_evol(f, c)
+	#plot_evol(f, c)
 	mean = np.asarray(mean)
 	var = np.asarray(var)
 	
 	return(np.mean(mean), np.mean(var), np.var(mean))
 
-m, mv, v = launch_exploration(15, 1, 1, 30)
+'''
+tab = []
 
-#print (u"Pour les valeurs de paramètres données, l'écart moyen à la valeur initiale est de: "+ str(m) +"la variance moyenne de cet écart est de "+ str(mv) + "et la variance inter-populations de "+ str(v)) 
+for p_co in [0.1, 0.3, 0.5, 0.7, 0.9]:
+    for p_mute in [0.1, 0.3, 0.5, 0.7,0.9]:
+        print("Avancée: ", p_co, p_mute)
+
+        m, mv, v = launch_exploration(15, p_mute, p_co, 15)
+        tab.append(m)
+
+print(tab)
+
+tab_select=[]
+
+
+for sel in [3, 6, 10, 15, 20]:
+    m, mv, v = launch_exploration(sel, 0.5, 0.5, 15)
+    tab.append(m)
+print(tab_select)
+'''
+m, mv, v = launch_exploration(15, 0.5, 0.5, 15)
+print (u"Pour les valeurs de paramètres données, l'écart moyen à la valeur initiale est de: "+ str(m) +"la variance moyenne de cet écart est de "+ str(mv) + "et la variance inter-populations de "+ str(v)) 

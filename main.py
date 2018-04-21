@@ -65,6 +65,7 @@ class Graph:
 		if method == None :
 			a = int(round(random.random()*number_to_change))
 			b = int(round(random.random()*number_to_change))
+
 			#a = int(round(random.random()*200))
 			#b = int(round(random.random()*200))
 			
@@ -189,7 +190,7 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_co) :
 		# Population is sorted
 		t1=time.time()
 		population.sort(key=lambda x:x.fitness, reverse=False)
-		print("fitness: ", population[0].fitness)
+		#print("fitness: ", population[0].fitness)
 		fitnesses.append(population[0].fitness)
 		coef[0].append(population[0].C)
 		coef[1].append(population[0].L)
@@ -211,7 +212,7 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_co) :
 
 		#### mutation!! New idea: The current first graph remains untouch - the fitness will always decrease like that!
 		t1=time.time()
-		nb_mutation = int(round(50*0.9683237**i))
+		nb_mutation = int(round((population[0].node_num/4)*0.9683237**i))
 		for G in population[1:]: 
 			if random.random()<p_mute:
 				G.mutation_of_a_graph(nb_mutation)
@@ -233,11 +234,11 @@ def main(nb_nodes, nb_graph, nb_select, p_mute, p_co, nb_co) :
 		
 		# Conversion to 100 nodes graphs: (gamma: 1.07, C: 0.835, L: 2.18)
 		#print(" temps fitness", time.time()-t1)
-		print('coefficients (C, L, gamma) :', population[0].C,population[0].L,population[0].gamma)
+		#print('coefficients (C, L, gamma) :', population[0].C,population[0].L,population[0].gamma)
 		step = i*100/50
-		print('Avancement de :',step, '%')
+		#print('Avancement de :',step, '%')
 		time2 = time.time() - time1
-		print('temps exection :', round(time2),'secondes')
+		#print('temps exection :', round(time2),'secondes')
 		# Update weigths
 		'''
 		Tot=abs(population[0].C-C_target)+ abs(population[0].L-L_target)+abs(population[0].gamma-Gamma_target)
@@ -301,12 +302,12 @@ def launch_exploration(nb_select, p_mute, p_co, nb_co):
 	
 	return(np.mean(mean), np.mean(var), np.var(mean))
 
-'''
+
 tab = []
 
 for p_co in [0.1, 0.3, 0.5, 0.7, 0.9]:
     for p_mute in [0.1, 0.3, 0.5, 0.7,0.9]:
-        print("Avancée: ", p_co, p_mute)
+        #print("Avancée: ", p_co, p_mute)
 
         m, mv, v = launch_exploration(15, p_mute, p_co, 15)
         tab.append(m)
@@ -320,6 +321,6 @@ for sel in [3, 6, 10, 15, 20]:
     m, mv, v = launch_exploration(sel, 0.5, 0.5, 15)
     tab.append(m)
 print(tab_select)
-'''
-m, mv, v = launch_exploration(15, 0.5, 0.5, 15)
-print (u"Pour les valeurs de paramètres données, l'écart moyen à la valeur initiale est de: "+ str(m) +"la variance moyenne de cet écart est de "+ str(mv) + "et la variance inter-populations de "+ str(v)) 
+
+#m, mv, v = launch_exploration(15, 0.5, 0.5, 15)
+#print (u"Pour les valeurs de paramètres données, l'écart moyen à la valeur initiale est de: "+ str(m) +"la variance moyenne de cet écart est de "+ str(mv) + "et la variance inter-populations de "+ str(v)) 
